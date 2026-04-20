@@ -1,0 +1,26 @@
+# 文件路径: databricks.yml
+bundle:
+  name: jt-order-processing
+
+targets:
+  prd:
+    default: true
+    workspace:
+      host: https://adb-7405606129126631.11.azuredatabricks.net # 替换为你的真实 Workspace URL
+    
+resources:
+  jobs:
+    mexico_order_cleanup_job:
+      name: "[PRD] 墨西哥订单清洗作业 (CI/CD 自动部署)"
+      tasks:
+        - task_key: run_cleanup_script
+          spark_python_task:
+            python_file: ./src/order_cleanup.py
+          job_cluster_key: prd_compute_cluster
+      
+      job_clusters:
+        - job_cluster_key: prd_compute_cluster
+          new_cluster:
+            spark_version: "13.3.x-scala2.12"
+            node_type_id: "Standard_DS3_v2"
+            num_workers: 1
