@@ -16,13 +16,15 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Deploy Databricks Bundle
+      - name: Deploy Bundle
         env:
-          # 调用 GitHub Secrets 中配置的 SPN 凭证
+          # Host 必须用 DATABRICKS_ 前缀
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.SPN_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.SPN_CLIENT_SECRET }}
-          DATABRICKS_TENANT_ID: ${{ secrets.DATABRICKS_TENANT_ID }}
+          # 下面这三个 SPN 专属参数，左边的名字必须强制用 ARM_ 前缀！
+          # 右边的 secrets.XXX 必须跟你 GitHub 里建的 Secret 名字一字不差
+          ARM_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.DATABRICKS_TENANT_ID }}
         run: |
           echo "🚀 开始向 PRD 环境进行自动化发版..."
           databricks bundle deploy -t prd
