@@ -23,8 +23,8 @@ jobs:
           DATABRICKS_CLIENT_ID: ${{ secrets.SPN_CLIENT_ID }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.SPN_CLIENT_SECRET }}
         run: |
-          echo "🚀 开始向 PRD 环境进行自动化发版..."
+          echo "🚀 开始向 PRD 环境进行自动化发版"
           databricks bundle deploy -t prd
           
-          echo "✅ 部署完成！正在自动触发作业运行..."
+          echo "✅ 部署完成！正在自动触发作业运行"
           databricks bundle run -t prd mexico_order_cleanup_job
