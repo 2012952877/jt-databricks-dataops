@@ -1,0 +1,30 @@
+# 文件路径: .github/workflows/deploy.yml
+name: Databricks CD Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_to_databricks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Deploy Databricks Bundle
+        env:
+          # 调用 GitHub Secrets 中配置的 SPN 凭证
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.SPN_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.SPN_CLIENT_SECRET }}
+        run: |
+          echo "🚀 开始向 PRD 环境进行自动化发版..."
+          databricks bundle deploy -t prd
+          
+          echo "✅ 部署完成！正在自动触发作业运行..."
+          databricks bundle run -t prd mexico_order_cleanup_job
