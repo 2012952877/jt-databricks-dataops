@@ -1,0 +1,31 @@
+name: Databricks PR Code Review
+
+# 触发条件：当有人向 main 分支发起 Pull Request 时触发
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  code_compliance_check:
+    name: Code Compliance & Timezone Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Enforce Mexico Timezone Policy
+        run: |
+          echo "🔍 正在扫描 PySpark 代码规范..."
+          echo "检查目标：是否显式声明拉美区时区 (America/Mexico_City)"
+          
+          # 扫描 src 目录下的所有 python 文件
+          if grep -q "America/Mexico_City" src/*.py; then
+            echo "✅ 检查通过: 包含正确的时区配置。"
+            exit 0
+          else
+            echo "❌ 严重违规: 缺失显式的时区配置！"
+            echo "❌ 修复建议: 请在代码初始化时添加 spark.conf.set('spark.sql.session.timeZone', 'America/Mexico_City')"
+            exit 1 # exit 1 会直接导致这个 GitHub Action 失败，从而锁死 PR 的 Merge 按钮！
+          fi
